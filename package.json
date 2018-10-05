@@ -1,0 +1,26 @@
+{
+  "name": "tailored-knits-api2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.2.0",
+    "express": "^4.16.3",
+    "mocha": "^5.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "mocha --exit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GilliganL/tailored-knits-api2.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GilliganL/tailored-knits-api2/issues"
+  },
+  "homepage": "https://github.com/GilliganL/tailored-knits-api2#readme"
+}
