@@ -11,7 +11,7 @@ const passport = require('passport');
 
 const { CLIENT_ORIGIN, DATABASE_URL, PORT } = require('./config');
 const { router: authRouter, localStrategy, jwtStrategy } = require('./auth');
-const userRoutes = require('./users/routes');
+const { router: usersRouter } = require('./users');
 
 mongoose.Promise = global.Promise;
 
@@ -21,7 +21,7 @@ const jsonParser = bodyParser.json();
 app.use(express.json());
 app.use(morgan('common'));
 
-//app.use(express.static('public'));
+app.use(express.static('public'));
 
 passport.use(localStrategy);
 passport.use(jwtStrategy);
@@ -45,8 +45,8 @@ app.use(
 //     next();
 // });
 
-app.use('/api/users', userRoutes);
-app.use('/api/auth', authRouter);
+app.use('/api/users/', usersRouter);
+app.use('/api/auth/', authRouter);
 
 app.use((req, res, next) => {
     res.sendStatus(404);

@@ -7,14 +7,16 @@ const expect = chai.expect;
 
 const {app} = require('../server');
 
+
 chai.use(chaiHttp);
 
-describe('Server.js file', function() {
+describe('Server.js should return status 200 and html', function() {
     it('Should return status 200', function() {
         return chai.request(app)
-            .get('/')
+            .get('/api/users')
             .then(function(res) {
                 expect(res).to.have.status(200);
+                expect(res).to.be.html;
             });
     });
 });

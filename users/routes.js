@@ -13,65 +13,103 @@ const jwt = passport.authenticate('jwt', { session: false });
 
 router.post('/', (req, res) => {
     const requiredFields = ['firstName', 'lastName', 'username', 'password', 'email'];
-    for (let i=0; i<requiredFields.length; i++) {
-        const field = requiredField[i];
-        if(!(field in req.body)) {
-            const message = `Missing \'${field}\'`;
-            console.error(message);
-            return res.status(400).json({error: message});
-        }
-    };
+    const missingField = requiredFields.find(field => !(field in req.body));
 
-    if (!(validator.isAlpha(req.body.firstName)) || !(validator.isAlpha(req.body.lastName))) {
-        const message = `First and last name can only contain letters`;
-        console.error(message);
-        return res.status(400).json({error: message});
-    };
+    if(missingField) {
+        return res.status(422).json({
+            code: 422,
+            reason: 'ValidationError',
+            message: 'Missing field',
+            location: missingField
+        });
+    }
+
+    const nameFields = ['firstName', 'lastName'];
+    const invalidName = nameFields.find(
+        field => field in req.body && !(validator.isAlpha(field))
+    );
+
+    if(invalidName) {
+        return res.status(422).json({
+            code: 422,
+            reason: 'ValidationError',
+            message: 'Incorrect field type: only letters allowed',
+            location: invalidName
+        });
+    }
+
+    const trimmedFields = ['username', 'password'];
+    const nonTrimmedFields = trimmedFields.find(
+        field => req.body[field].trim() !== req.body[field]
+    );
+
+    if(nonTrimmedFields) {
+        return res.status(422).json({
+            code: 422,
+            reason: 'ValidationError',
+            message: 'Cannot start or end with a space',
+            location: nonTrimmedFields
+        });
+    }
 
     if (!(validator.isEmail(req.body.email))) {
-        const message = `Please enter a valid email address`;
-        console.error(message);
-        return res.status(400).json({error: message});
-    };
+        return res.status(422).json({
+            code: 422,
+            reason: 'ValidationError',
+            message: 'Not a valid email address',
+            location: req.body.email
+        });
+    }
 
-    if (!(validator.isAlphanumeric(req.body.username)) || (req.body.username.trim() !== req.body.username)) {
-        const message = 'Please use letters and numbers only in username';
-        console.error(message);
-        return res.status(400).json({error: message});
-    };
 
     if (!(passwordSchema.validate(req.body.password))) {
         const failed = passwordSchema.validate(req.body.password, { list: true });
-        let message = 'Password must contain at least 8 characters including 1 uppercase letter and 1 number';
-        console.error(message);
-        return res.status(400).json({error: message});
-    };
+        return res.status(422).json({
+            code: 422,
+            reason: 'ValidationError',
+            message: failed,
+            location: req.body.password
+        });
+    }
     
     User 
         .findOne({ username: req.body.username })
         .then(user => {
             if(user) {
-                const message = 'username already taken';
-                console.error(message);
-                return res.status(400).json({ error: message });
+                return Promise.reject({
+                    code: 422,
+                    reason: 'ValidationError',
+                    message: 'Username already taken',
+                    location: 'username'
+                });
             }
             return User.hashPassword(req.body.password);
         })
         .then(hash => {
             return User
                 .create({
-                    firstName: req.body.firstName,
-                    lastName: req.body.lastName,
+                    firstName: req.body.firstName.trim(),
+                    lastName: req.body.lastName.trim(),
                     username: req.body.username,
-                    email: req.body.email,
+                    email: req.body.email.trim(),
                     password: hash
                 })
         })
         .then(user => res.status(201).json(user.serialize()))
         .catch(err => {
-            console.error(err);
-            res.status(500).json({ error: 'something went wrong'})
+            if (err.reason === 'ValidationError') {
+                return res.status(err.code).json(err);
+            }
+            res.status(500).json({ error: 'Internal server error'})
         });
 });
 
-module.exports = router;
+router.get('/', (req, res) => {
+    return User.find()
+        .then(users => res.json(users.map(user => user.serialize())))
+        .catch(err => 
+            res.status(500).json({message: 'Internal server error'})
+        )
+});
+
+module.exports = { router };
