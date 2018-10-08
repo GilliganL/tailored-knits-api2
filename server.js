@@ -1,13 +1,30 @@
+'use strict';
+
 const express = require('express');
 const morgan = require('morgan');
+const mongoose = require('mongoose');
 const cors = require('cors');
-const { CLIENT_ORIGIN } = require('./config');
 const bodyParser = require('body-parser');
+const passport = require('passport');
+
+const { CLIENT_ORIGIN, DATABASE_URL, PORT } = require('./config');
+const { router: authRouter, localStrategy, jwtStrategy } = require('./auth');
+const userRoutes = require('./users/routes');
+
+mongoose.Promise = global.Promise;
 
 const app = express();
 const jsonParser = bodyParser.json();
 
+app.use(express.json());
 app.use(morgan('common'));
+
+//app.use(express.static('public'));
+
+passport.use(localStrategy);
+passport.use(jwtStrategy);
+
+const jwtAuth = passport.authenticate('jwt', { session: false });
 
 app.use(
     cors({
@@ -15,29 +32,67 @@ app.use(
     })
 );
 
-app.get('/', (req, res) => {
-    return res.status(200)
-        .json({
-            users: [
-                {
-                    firstName: 'Lynsey',
-                    lastName: 'Powell'
-                },
-                {
-                    firstName: 'Adam',
-                    lastName: 'Phillips'
-                }
-            ]
-        });
+//What is the difference between line 19 and this:
+// app.use(function(req, res, next) {
+//     res.header('Access-Control-Allow-Origin', '*');
+//     res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+//     res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE');
+//     if(req.method === 'OPTIONS') {
+//         return res.send(204);
+//     }
+//     next();
+// });
+
+app.use('/api/users', userRoutes);
+app.use('/api/auth', authRouter);
+
+app.use((req, res, next) => {
+    res.sendStatus(404);
+    next();
 });
 
-app.post('/api/users', jsonParser, (req, res) => {
-    console.log(req.body)
-    res.json({
-        message: 'successful post'
-    })
-})
+app.use((error, req, res, next) => {
+    console.error(error);
+    res.status(500).json(error);
+    next();
+});
 
-app.listen(process.env.PORT || 8080);
+let server;
 
-module.exports = { app };
+function runServer(databaseUrl, port = PORT) {
+    return new Promise((resolve, reject) => {
+        mongoose.connect(databaseUrl, err => {
+            if (err) {
+                return reject(err);
+            }
+            server = app.listen(port, () => {
+                console.log(`Your app is listening on port ${port}`);
+                resolve();
+            })
+            .on('error', err => {
+                mongoose.disconnect();
+                reject(err);
+            });
+        });
+    });
+}
+
+function closeServer() {
+    return mongoose.disconnect().then(() => {
+        return new Promise((resolve, reject) => {
+            console.log('Closing server');
+            server.close(err => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve();
+            });
+        });
+    });
+}
+
+if (require.main === module) {
+    runServer(DATABASE_URL).catch(err => console.error(err));
+}
+
+module.exports = { app, runServer, closeServer };
