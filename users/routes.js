@@ -57,10 +57,9 @@ router.post('/', (req, res) => {
             code: 422,
             reason: 'ValidationError',
             message: 'Not a valid email address',
-            location: req.body.email
+            location: 'Email'
         });
     }
-
 
     if (!(passwordSchema.validate(req.body.password))) {
         const failed = passwordSchema.validate(req.body.password, { list: true });
@@ -68,7 +67,7 @@ router.post('/', (req, res) => {
             code: 422,
             reason: 'ValidationError',
             message: failed,
-            location: req.body.password
+            location: 'Password'
         });
     }
     
@@ -95,7 +94,9 @@ router.post('/', (req, res) => {
                     password: hash
                 })
         })
-        .then(user => res.status(201).json(user.serialize()))
+        .then(user => {
+            res.status(201).json(user.serialize())
+        })
         .catch(err => {
             if (err.reason === 'ValidationError') {
                 return res.status(err.code).json(err);
@@ -104,12 +105,101 @@ router.post('/', (req, res) => {
         });
 });
 
+//router.use(jwtAuth);
+
 router.get('/', (req, res) => {
     return User.find()
         .then(users => res.json(users.map(user => user.serialize())))
         .catch(err => 
             res.status(500).json({message: 'Internal server error'})
         )
+});
+
+router.get('/:id', (req, res) => {
+    User
+        .findById(req.user.id)
+        .then(user => res.status(201).json(user.serialize()))
+        .catch(err => 
+            res.status(500).json({message: 'Internal server error'})
+        )
+});
+
+router.put('/:id', (req, res) => {
+    const updated = {};
+    const updateFields = ['firstName', 'lastName', 'email', 'password'];
+    updateFields.forEach(field => {
+        if (req.body[field]) {
+            updated[field] = req.body[field];
+        }
+    })
+
+    const nameFields = ['firstName', 'lastName'];
+    const invalidName = nameFields.find(
+        field => field in updated && !(validator.isAlpha(updated[field]))
+    );
+
+    if(invalidName) {
+        return res.status(422).json({
+            code: 422,
+            reason: 'ValidationError',
+            message: 'Incorrect field type: only letters allowed',
+            location: invalidName
+        });
+    }
+
+    if (updated.email && !(validator.isEmail(updated.email))) {
+        return res.status(422).json({
+            code: 422,
+            reason: 'ValidationError',
+            message: 'Not a valid email address',
+            location: 'email'
+        });
+    }
+
+    //how do you update a password?
+    if (updated.password && !(passwordSchema.validate(updated.password))) {
+        const failed = passwordSchema.validate(req.body.password, { list: true });
+        return res.status(422).json({
+            code: 422,
+            reason: 'ValidationError',
+            message: failed,
+            location: 'Password'
+        });
+    } else if (updated.password && passwordSchema.validate(updated.password)) {
+        User
+        .hashPassword(updated.password)
+        .then(hash => updated.password = hash)
+    }
+
+    User 
+    .findOneAndUpdate(req.params.id, { $set: updated }, { new: true })
+    .then(updatedUser => res.status(201).json(updatedUser.serialize()))
+    .catch(err => {
+        if (err.reason === 'ValidationError') {
+            return res.status(err.code).json(err);
+        }
+        res.status(500).json({ error: 'Internal server error'})
+    });
+});
+
+router.delete('/:id', (req, res) => {
+    if (req.params.id !== req.body.id) {
+        return res.status(422).json({
+            code: 422,
+            reason: 'ValidationError',
+            message: 'The IDs do not match',
+            location: 'Parameter and Request IDs'
+        });
+    }
+
+    User
+        .findByIdAndRemove(req.body.id)
+        .then(() => {
+            res.status(200).json({ message: 'success' })
+        })
+        .catch(err => {
+            res.status(500).json({ error: 'Internal server error'})
+        });
 });
 
 module.exports = { router };

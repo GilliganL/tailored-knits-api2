@@ -20,6 +20,7 @@ const localAuth = passport.authenticate('local', { session: false });
 router.use(bodyParser.json());
 
 router.post('/login', localAuth, (req, res) => {
+    console.log('logged in')
     const authToken = createAuthToken(req.user.serialize());
     res.json({
         id: req.user._id,
@@ -27,8 +28,12 @@ router.post('/login', localAuth, (req, res) => {
     });
 });
 
-//needed?
 const jwtAuth = passport.authenticate('jwt', { session: false });
+
+router.post('/refresh', jwtAuth, (req, res) => {
+    const authToken = createAuthToken(req.user);
+    res.json({authToken});
+});
 
 router.get('/logout', (req, res) => {
     req.logout();

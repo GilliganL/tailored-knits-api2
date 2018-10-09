@@ -5,7 +5,8 @@ const chaiHttp = require('chai-http');
 
 const expect = chai.expect;
 
-const { app, runServer, closeServer } = require('../server').default;
+
+const { app, runServer, closeServer } = require('../server');
 const { User } = require('../users');
 const { TEST_DATABASE_URL } = require('../config');
 
@@ -41,8 +42,10 @@ describe('/api/users', function () {
                     username,
                     password
                 })
-                .then(() =>
+                .then((res) => {
+                console.log(res)
                 expect.fail(null, null, 'Request should not succeed')
+                }
                 )
                 .catch(err => {
                     if (err instanceof chai.AssertionError) {
