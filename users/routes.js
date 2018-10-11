@@ -9,7 +9,7 @@ const passport = require('passport');
 
 const { User, passwordSchema } = require('./models');
 
-const jwt = passport.authenticate('jwt', { session: false });
+const jwtAuth = passport.authenticate('jwt', { session: false });
 
 router.post('/', (req, res) => {
     const requiredFields = ['firstName', 'lastName', 'username', 'password', 'email'];
@@ -105,7 +105,7 @@ router.post('/', (req, res) => {
         });
 });
 
-//router.use(jwtAuth);
+router.use(jwtAuth);
 
 router.get('/', (req, res) => {
     return User.find()
