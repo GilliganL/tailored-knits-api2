@@ -94,9 +94,7 @@ router.post('/', (req, res) => {
                     password: hash
                 })
         })
-        .then(user => {
-            res.status(201).json(user.serialize())
-        })
+        .then(user => res.status(201).json(user))
         .catch(err => {
             if (err.reason === 'ValidationError') {
                 return res.status(err.code).json(err);
@@ -116,15 +114,17 @@ router.get('/', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
+    //add check for body id and parameter id??
     User
-        .findById(req.user.id)
-        .then(user => res.status(201).json(user.serialize()))
+        .findById(req.params.id, 'id username firstName lastName email')
+        .then(user => res.status(201).json(user))
         .catch(err => 
             res.status(500).json({message: 'Internal server error'})
         )
 });
 
 router.put('/:id', (req, res) => {
+   
     const updated = {};
     const updateFields = ['firstName', 'lastName', 'email', 'password'];
     updateFields.forEach(field => {
@@ -170,10 +170,13 @@ router.put('/:id', (req, res) => {
         .hashPassword(updated.password)
         .then(hash => updated.password = hash)
     }
-
+   
     User 
-    .findOneAndUpdate(req.params.id, { $set: updated }, { new: true })
-    .then(updatedUser => res.status(201).json(updatedUser.serialize()))
+    .findOneAndUpdate({_id: req.params.id}, { $set: updated }, { new: true })
+    .then(updatedUser => {
+        console.log(updatedUser)
+        res.status(201).json(updatedUser)
+    })
     .catch(err => {
         if (err.reason === 'ValidationError') {
             return res.status(err.code).json(err);
