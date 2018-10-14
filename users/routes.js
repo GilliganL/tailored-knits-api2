@@ -174,7 +174,6 @@ router.put('/:id', (req, res) => {
     User 
     .findOneAndUpdate({_id: req.params.id}, { $set: updated }, { new: true })
     .then(updatedUser => {
-        console.log(updatedUser)
         res.status(201).json(updatedUser)
     })
     .catch(err => {
