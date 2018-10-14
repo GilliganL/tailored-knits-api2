@@ -18,7 +18,7 @@ const patternSchema = mongoose.Schema({
 });
 
 const projectSchema = mongoose.Schema({
-    user: { type: mongoose.Schema.ObjectId, ref: 'User' },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     name: { type: String, required: true },
     created: { type: Date, default: Date.now },
     size: { type: String, required: true },
