@@ -21,16 +21,19 @@ const projectSchema = mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     name: { type: String, required: true },
     created: { type: Date, default: Date.now },
-    size: { type: String, required: true },
+    size: String,
     ease: Number,
     needles: String,
-    style: { Type: String, required: true },
+    style: { type: String, required: true },
     gaugeRow: Number,
     gaugeStitches: Number,
     pattern: patternSchema
 });
 
-
+projectSchema.pre('find', function(next) {
+    this.populate('user');
+    next();
+})
 
 projectSchema.pre('');
 

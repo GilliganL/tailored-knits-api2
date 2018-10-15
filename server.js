@@ -47,7 +47,7 @@ app.use(
 // });
 
 app.use('/api/users/', usersRouter);
-app.user('/api/projects', projectsRouter);
+app.use('/api/projects', projectsRouter);
 app.use('/api/auth/', authRouter);
 
 

@@ -5,111 +5,56 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const passport = require('passport');
 
-const { User } = require('../users/models');
 const { Project } = require('./models');
 
 router.get('/', (req, res) => {
-    console.log(req.user)
+    //change to req.user.id
+    let userId = "5bbff2b462143035e48912f2";
     return Project
-        .find()
+        .find({ user: userId })
         .then(projects => res.json(projects))
         .catch(err =>
             res.status(500).json({ message: 'Internal server error' })
         )
 });
 
+//get by project id
 router.get('/:id', (req, res) => {
-    //add check for body id and parameter id??
-    User
-        .findById(req.params.id, 'id username firstName lastName email')
-        .then(user => res.status(201).json(user))
+    Project
+        .findById(req.params.id)
+        .then(project => res.status(201).json(project))
         .catch(err =>
             res.status(500).json({ message: 'Internal server error' })
         )
 });
 
-
 router.post('/', (req, res) => {
-    console.log(req.user)
-    const {
-        user,
-        name,
-        created,
-        size,
-        style,
-        pattern
-    } = req.body;
 
-    console.log(req.body)
+    const newProject = req.body;
+    newProject.created = Date.now();
+    // newProject.user = mongoose.Types.ObectId(req.user.id);
 
-    // const requiredFields = ['firstName', 'lastName', 'username', 'password', 'email'];
-    // const missingField = requiredFields.find(field => !(field in req.body));
+    const requiredFields = ['name', 'style', 'created'];
+    const missingField = requiredFields.find(field => !(field in newProject));
 
-    // if(missingField) {
-    //     return res.status(422).json({
-    //         code: 422,
-    //         reason: 'ValidationError',
-    //         message: 'Missing field',
-    //         location: missingField
-    //     });
-    // }
-
-    // const nameFields = ['firstName', 'lastName'];
-    // const invalidName = nameFields.find(
-    //     field => field in req.body && !(validator.isAlpha(field))
-    // );
-
-    // if(invalidName) {
-    //     return res.status(422).json({
-    //         code: 422,
-    //         reason: 'ValidationError',
-    //         message: 'Incorrect field type: only letters allowed',
-    //         location: invalidName
-    //     });
-    // }
-
-    // const trimmedFields = ['username', 'password'];
-    // const nonTrimmedFields = trimmedFields.find(
-    //     field => req.body[field].trim() !== req.body[field]
-    // );
-
-    // if(nonTrimmedFields) {
-    //     return res.status(422).json({
-    //         code: 422,
-    //         reason: 'ValidationError',
-    //         message: 'Cannot start or end with a space',
-    //         location: nonTrimmedFields
-    //     });
-    // }
-
-    // if (!(validator.isEmail(req.body.email))) {
-    //     return res.status(422).json({
-    //         code: 422,
-    //         reason: 'ValidationError',
-    //         message: 'Not a valid email address',
-    //         location: 'Email'
-    //     });
-    // }
-
-    // if (!(passwordSchema.validate(req.body.password))) {
-    //     const failed = passwordSchema.validate(req.body.password, { list: true });
-    //     return res.status(422).json({
-    //         code: 422,
-    //         reason: 'ValidationError',
-    //         message: failed,
-    //         location: 'Password'
-    //     });
-    // }
+    if (missingField) {
+        return res.status(422).json({
+            code: 422,
+            reason: 'ValidationError',
+            message: 'Missing field',
+            location: missingField
+        });
+    }
 
     Project
         .create({
             _id: new mongoose.Types.ObjectId(),
-            user,
-            name,
-            created,
-            size,
-            style,
-            pattern
+            user: newProject.user,
+            name: newProject.name,
+            created: newProject.created,
+            size: newProject.size,
+            style: newProject.style,
+            pattern: newProject.pattern
         })
         .then(project => res.status(201).json(project))
         .catch(err => {
@@ -120,85 +65,48 @@ router.post('/', (req, res) => {
         });
 });
 
-// router.put('/:id', (req, res) => {
+router.put('/:id', (req, res) => {
 
-//     const updated = {};
-//     const updateFields = ['firstName', 'lastName', 'email', 'password'];
-//     updateFields.forEach(field => {
-//         if (req.body[field]) {
-//             updated[field] = req.body[field];
-//         }
-//     })
+    //how to check subdoc fields? pattern.name
+    const updated = {};
+    const updateFields = ['name', 'style', 'size'];
+    updateFields.forEach(field => {
+        if (req.body[field]) {
+            updated[field] = req.body[field];
+        }
+    })
 
-//     const nameFields = ['firstName', 'lastName'];
-//     const invalidName = nameFields.find(
-//         field => field in updated && !(validator.isAlpha(updated[field]))
-//     );
+    Project
+        .findOneAndUpdate({ _id: req.params.id }, { $set: updated }, { new: true })
+        .then(updatedProject => {
+            res.status(201).json(updatedProject)
+        })
+        .catch(err => {
+            if (err.reason === 'ValidationError') {
+                return res.status(err.code).json(err);
+            }
+            res.status(500).json({ error: 'Internal server error' })
+        });
+});
 
-//     if(invalidName) {
-//         return res.status(422).json({
-//             code: 422,
-//             reason: 'ValidationError',
-//             message: 'Incorrect field type: only letters allowed',
-//             location: invalidName
-//         });
-//     }
+router.delete('/:id', (req, res) => {
+    // if (req.params.id !== req.body.id) {
+    //     return res.status(422).json({
+    //         code: 422,
+    //         reason: 'ValidationError',
+    //         message: 'The IDs do not match',
+    //         location: 'Parameter and Request IDs'
+    //     });
+    // }
 
-//     if (updated.email && !(validator.isEmail(updated.email))) {
-//         return res.status(422).json({
-//             code: 422,
-//             reason: 'ValidationError',
-//             message: 'Not a valid email address',
-//             location: 'email'
-//         });
-//     }
-
-//     //how do you update a password?
-//     if (updated.password && !(passwordSchema.validate(updated.password))) {
-//         const failed = passwordSchema.validate(req.body.password, { list: true });
-//         return res.status(422).json({
-//             code: 422,
-//             reason: 'ValidationError',
-//             message: failed,
-//             location: 'Password'
-//         });
-//     } else if (updated.password && passwordSchema.validate(updated.password)) {
-//         User
-//         .hashPassword(updated.password)
-//         .then(hash => updated.password = hash)
-//     }
-
-//     User 
-//     .findOneAndUpdate({_id: req.params.id}, { $set: updated }, { new: true })
-//     .then(updatedUser => {
-//         res.status(201).json(updatedUser)
-//     })
-//     .catch(err => {
-//         if (err.reason === 'ValidationError') {
-//             return res.status(err.code).json(err);
-//         }
-//         res.status(500).json({ error: 'Internal server error'})
-//     });
-// });
-
-// router.delete('/:id', (req, res) => {
-//     if (req.params.id !== req.body.id) {
-//         return res.status(422).json({
-//             code: 422,
-//             reason: 'ValidationError',
-//             message: 'The IDs do not match',
-//             location: 'Parameter and Request IDs'
-//         });
-//     }
-
-//     User
-//         .findByIdAndRemove(req.body.id)
-//         .then(() => {
-//             res.status(200).json({ message: 'success' })
-//         })
-//         .catch(err => {
-//             res.status(500).json({ error: 'Internal server error'})
-//         });
-// });
+    Project
+        .findByIdAndRemove(req.params.id)
+        .then(() => {
+            res.status(200).json({ message: 'success' })
+        })
+        .catch(err => {
+            res.status(500).json({ error: 'Internal server error'})
+        });
+});
 
 module.exports = { router };
