@@ -10,7 +10,13 @@ const userSchema = mongoose.Schema({
     lastName: { type: String, required: true, index: true },
     username: { type: String, minLength: 3, unique: true, required: true },
     password: { type: String, required: true },
-    email: { type: String, required: true }
+    email: { type: String, required: true },
+    chest: mongoose.Schema.Types.Decimal,
+    waist: mongoose.Schema.Types.Decimal,
+    hips: mongoose.Schema.Types.Decimal,
+    upperArm: mongoose.Schema.Types.Decimal,
+    armhole: mongoose.Schema.Types.Decimal,
+    length: mongoose.Schema.Types.Decimal,
 });
 
 const passwordSchema = new passwordValidator();

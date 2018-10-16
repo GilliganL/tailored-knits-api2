@@ -3,13 +3,11 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const passport = require('passport');
 
 const { Project } = require('./models');
 
 router.get('/', (req, res) => {
-    //change to req.user.id
-    let userId = "5bbff2b462143035e48912f2";
+    let userId = req.user.id;
     return Project
         .find({ user: userId })
         .then(projects => res.json(projects))
@@ -18,7 +16,7 @@ router.get('/', (req, res) => {
         )
 });
 
-//get by project id
+//ObjectId.isValid(req.params.id)
 router.get('/:id', (req, res) => {
     Project
         .findById(req.params.id)
@@ -29,12 +27,11 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-
     const newProject = req.body;
     newProject.created = Date.now();
-    // newProject.user = mongoose.Types.ObectId(req.user.id);
+    newProject.user = req.user.id;
 
-    const requiredFields = ['name', 'style', 'created'];
+    const requiredFields = ['name', 'style', 'created', 'user'];
     const missingField = requiredFields.find(field => !(field in newProject));
 
     if (missingField) {
@@ -49,6 +46,7 @@ router.post('/', (req, res) => {
     Project
         .create({
             _id: new mongoose.Types.ObjectId(),
+         //   ...newProject
             user: newProject.user,
             name: newProject.name,
             created: newProject.created,
@@ -69,6 +67,7 @@ router.put('/:id', (req, res) => {
 
     //how to check subdoc fields? pattern.name
     const updated = {};
+    //separate object & array to check
     const updateFields = ['name', 'style', 'size'];
     updateFields.forEach(field => {
         if (req.body[field]) {
@@ -90,14 +89,6 @@ router.put('/:id', (req, res) => {
 });
 
 router.delete('/:id', (req, res) => {
-    // if (req.params.id !== req.body.id) {
-    //     return res.status(422).json({
-    //         code: 422,
-    //         reason: 'ValidationError',
-    //         message: 'The IDs do not match',
-    //         location: 'Parameter and Request IDs'
-    //     });
-    // }
 
     Project
         .findByIdAndRemove(req.params.id)
@@ -105,7 +96,7 @@ router.delete('/:id', (req, res) => {
             res.status(200).json({ message: 'success' })
         })
         .catch(err => {
-            res.status(500).json({ error: 'Internal server error'})
+            res.status(500).json({ error: 'Internal server error' })
         });
 });
 

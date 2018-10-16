@@ -46,10 +46,9 @@ app.use(
 //     next();
 // });
 
-app.use('/api/users/', usersRouter);
-app.use('/api/projects', projectsRouter);
 app.use('/api/auth/', authRouter);
-
+app.use('/api/users/', usersRouter);
+app.use('/api/projects', jwtAuth, projectsRouter);
 
 app.use((req, res, next) => {
     res.sendStatus(404);

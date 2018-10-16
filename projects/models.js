@@ -30,12 +30,10 @@ const projectSchema = mongoose.Schema({
     pattern: patternSchema
 });
 
-projectSchema.pre('find', function(next) {
-    this.populate('user');
-    next();
-})
+// patternSchema.pre('save', function(next) {
 
-projectSchema.pre('');
+//     next();
+// });
 
 const Project = mongoose.model('Project', projectSchema);
 

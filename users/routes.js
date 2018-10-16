@@ -94,7 +94,7 @@ router.post('/', (req, res) => {
                     password: hash
                 })
         })
-        .then(user => res.status(201).json(user))
+        .then(user => res.status(201).json(user.serialize()))
         .catch(err => {
             if (err.reason === 'ValidationError') {
                 return res.status(err.code).json(err);
@@ -117,7 +117,7 @@ router.get('/:id', (req, res) => {
     //add check for body id and parameter id??
     User
         .findById(req.params.id, 'id username firstName lastName email')
-        .then(user => res.status(201).json(user))
+        .then(user => res.status(201).json(user.serialize()))
         .catch(err => 
             res.status(500).json({message: 'Internal server error'})
         )
@@ -173,9 +173,7 @@ router.put('/:id', (req, res) => {
    
     User 
     .findOneAndUpdate({_id: req.params.id}, { $set: updated }, { new: true })
-    .then(updatedUser => {
-        res.status(201).json(updatedUser)
-    })
+    .then(user => res.status(200).json(user.serialize()))
     .catch(err => {
         if (err.reason === 'ValidationError') {
             return res.status(err.code).json(err);
