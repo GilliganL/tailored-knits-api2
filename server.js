@@ -13,6 +13,7 @@ const { CLIENT_ORIGIN, DATABASE_URL, PORT } = require('./config');
 const { router: authRouter, localStrategy, jwtStrategy } = require('./auth');
 const { router: usersRouter } = require('./users');
 const { router: projectsRouter } = require('./projects');
+const { router: patternsRouter } = require('./patterns');
 
 mongoose.Promise = global.Promise;
 
@@ -49,6 +50,7 @@ app.use(
 app.use('/api/auth/', authRouter);
 app.use('/api/users/', usersRouter);
 app.use('/api/projects', jwtAuth, projectsRouter);
+app.use('/api/patterns', patternsRouter);
 
 app.use((req, res, next) => {
     res.sendStatus(404);

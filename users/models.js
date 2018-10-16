@@ -3,6 +3,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const passwordValidator = require('password-validator');
+const Float = require('mongoose-float').loadType(mongoose, 2);
 mongoose.Promise = global.Promise;
 
 const userSchema = mongoose.Schema({
@@ -11,12 +12,12 @@ const userSchema = mongoose.Schema({
     username: { type: String, minLength: 3, unique: true, required: true },
     password: { type: String, required: true },
     email: { type: String, required: true },
-    chest: mongoose.Schema.Types.Decimal,
-    waist: mongoose.Schema.Types.Decimal,
-    hips: mongoose.Schema.Types.Decimal,
-    upperArm: mongoose.Schema.Types.Decimal,
-    armhole: mongoose.Schema.Types.Decimal,
-    length: mongoose.Schema.Types.Decimal,
+    chest: { type: Float },
+    waist: { type: Float },
+    hips: { type: Float },
+    upperArm: { type: Float },
+    armhole: { type: Float },
+    length: { type: Float }
 });
 
 const passwordSchema = new passwordValidator();

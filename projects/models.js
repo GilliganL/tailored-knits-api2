@@ -1,39 +1,32 @@
 'use strict';
 
 const mongoose = require('mongoose');
+const Float = require('mongoose-float').loadType(mongoose, 2);
 mongoose.Promise = global.Promise;
-
-const patternSchema = mongoose.Schema({
-    name: String,
-    ease: Number,
-    gaugeRow: Number,
-    gaugeStitches: Number,
-    chest: mongoose.Schema.Types.Decimal,
-    waist: mongoose.Schema.Types.Decimal,
-    hips: mongoose.Schema.Types.Decimal,
-    upperArm: mongoose.Schema.Types.Decimal,
-    armhole: mongoose.Schema.Types.Decimal,
-    length: mongoose.Schema.Types.Decimal,
-    notes: String
-});
 
 const projectSchema = mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    pattern: {type: mongoose.Schema.Types.ObjectId, ref: 'Pattern'},
     name: { type: String, required: true },
     created: { type: Date, default: Date.now },
     size: String,
     ease: Number,
     needles: String,
-    style: { type: String, required: true },
     gaugeRow: Number,
     gaugeStitches: Number,
-    pattern: patternSchema
+    notes: String,
+    chest: { type: Float },
+    waist: { type: Float },
+    hips: { type: Float },
+    upperArm: { type: Float },
+    armhole: { type: Float },
+    length: { type: Float }
 });
 
-// patternSchema.pre('save', function(next) {
-
-//     next();
-// });
+projectSchema.pre('findById', function(next) {
+    this.populate('pattern');
+    next();
+})
 
 const Project = mongoose.model('Project', projectSchema);
 
