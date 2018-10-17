@@ -103,7 +103,7 @@ router.post('/', (req, res) => {
         });
 });
 
-router.use(jwtAuth);
+//router.use(jwtAuth);
 
 router.get('/', (req, res) => {
     return User.find()
@@ -114,9 +114,8 @@ router.get('/', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
-    //add check for body id and parameter id??
     User
-        .findById(req.params.id, 'id username firstName lastName email')
+        .findById(req.params.id)
         .then(user => res.status(201).json(user.serialize()))
         .catch(err => 
             res.status(500).json({message: 'Internal server error'})

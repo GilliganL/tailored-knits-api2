@@ -49,7 +49,7 @@ app.use(
 
 app.use('/api/auth/', authRouter);
 app.use('/api/users/', usersRouter);
-app.use('/api/projects', jwtAuth, projectsRouter);
+app.use('/api/projects', projectsRouter);
 app.use('/api/patterns', patternsRouter);
 
 app.use((req, res, next) => {

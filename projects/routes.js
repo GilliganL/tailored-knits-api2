@@ -9,6 +9,7 @@ const { Project } = require('./models');
 router.get('/', (req, res) => {
     return Project
         .find()
+        .populate('pattern')
         .then(projects => res.json(projects))
         .catch(err =>
             res.status(500).json({ message: 'Internal server error' })
@@ -16,7 +17,7 @@ router.get('/', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
-    if (ObjectId.isValie(req.params.id)) {
+    if (ObjectId.isValid(req.params.id)) {
         Project
             .findById(req.params.id)
             .then(project => res.status(201).json(project))
@@ -36,7 +37,7 @@ router.get('/:id', (req, res) => {
 
 router.post('/', (req, res) => {
 
-    const requiredFields = ['name', 'style', 'created', 'user'];
+    const requiredFields = ['name', 'style'];
     const missingField = requiredFields.find(field => !(field in req.body));
 
     if (missingField) {
@@ -66,7 +67,7 @@ router.post('/', (req, res) => {
     } = req.body;
 
     const newProject = {
-        user: req.user.id,
+        user: '5bbff2b462143035e48912f2',
         created: Date.now(),
         pattern,
         name,
@@ -99,7 +100,7 @@ router.post('/', (req, res) => {
 });
 
 router.put('/:id', (req, res) => {
-    
+
     const updated = {};
     const updateFields = ['name', 'style', 'size', 'ease', 'needles', 'gaugeRow', 'gaugeStitches', 'notes', 'chest', 'waist', 'hips', 'upperArm', 'armhole', 'length'];
     updateFields.forEach(field => {
