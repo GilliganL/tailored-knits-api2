@@ -5,7 +5,7 @@ const Float = require('mongoose-float').loadType(mongoose, 2);
 mongoose.Promise = global.Promise;
 
 const patternSchema = mongoose.Schema({
-    name: String,
+    name: { type: String, required: true },
     ease: Number,
     gaugeRow: Number,
     gaugeStitches: Number,

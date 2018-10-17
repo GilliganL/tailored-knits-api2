@@ -7,32 +7,37 @@ const mongoose = require('mongoose');
 const { Project } = require('./models');
 
 router.get('/', (req, res) => {
-    let userId = req.user.id;
     return Project
-        .find({ user: userId })
+        .find()
         .then(projects => res.json(projects))
         .catch(err =>
             res.status(500).json({ message: 'Internal server error' })
         )
 });
 
-//ObjectId.isValid(req.params.id)
 router.get('/:id', (req, res) => {
-    Project
-        .findById(req.params.id)
-        .then(project => res.status(201).json(project))
-        .catch(err =>
-            res.status(500).json({ message: 'Internal server error' })
-        )
+    if (ObjectId.isValie(req.params.id)) {
+        Project
+            .findById(req.params.id)
+            .then(project => res.status(201).json(project))
+            .catch(err =>
+                res.status(500).json({ message: 'Internal server error' })
+            )
+    } else {
+        let userId = req.user.id;
+        return Project
+            .find({ user: userId })
+            .then(projects => res.json(projects))
+            .catch(err =>
+                res.status(500).json({ message: 'Internal server error' })
+            )
+    }
 });
 
 router.post('/', (req, res) => {
-    const newProject = req.body;
-    newProject.created = Date.now();
-    newProject.user = req.user.id;
 
     const requiredFields = ['name', 'style', 'created', 'user'];
-    const missingField = requiredFields.find(field => !(field in newProject));
+    const missingField = requiredFields.find(field => !(field in req.body));
 
     if (missingField) {
         return res.status(422).json({
@@ -43,16 +48,46 @@ router.post('/', (req, res) => {
         });
     }
 
+    const {
+        pattern,
+        name,
+        size,
+        ease,
+        needles,
+        gaugeRow,
+        gaugeStitches,
+        notes,
+        chest,
+        waist,
+        hips,
+        upperArm,
+        armhole,
+        length
+    } = req.body;
+
+    const newProject = {
+        user: req.user.id,
+        created: Date.now(),
+        pattern,
+        name,
+        size,
+        ease,
+        needles,
+        gaugeRow,
+        gaugeStitches,
+        notes,
+        chest,
+        waist,
+        hips,
+        upperArm,
+        armhole,
+        length
+    };
+
     Project
         .create({
             _id: new mongoose.Types.ObjectId(),
-         //   ...newProject
-            user: newProject.user,
-            name: newProject.name,
-            created: newProject.created,
-            size: newProject.size,
-            style: newProject.style,
-            pattern: newProject.pattern
+            ...newProject
         })
         .then(project => res.status(201).json(project))
         .catch(err => {
@@ -64,16 +99,14 @@ router.post('/', (req, res) => {
 });
 
 router.put('/:id', (req, res) => {
-
-    //how to check subdoc fields? pattern.name
+    
     const updated = {};
-    //separate object & array to check
-    const updateFields = ['name', 'style', 'size'];
+    const updateFields = ['name', 'style', 'size', 'ease', 'needles', 'gaugeRow', 'gaugeStitches', 'notes', 'chest', 'waist', 'hips', 'upperArm', 'armhole', 'length'];
     updateFields.forEach(field => {
         if (req.body[field]) {
             updated[field] = req.body[field];
         }
-    })
+    });
 
     Project
         .findOneAndUpdate({ _id: req.params.id }, { $set: updated }, { new: true })
