@@ -13,9 +13,10 @@ const patternSchema = mongoose.Schema({
     chest: { type: Float },
     waist: { type: Float },
     hips: { type: Float },
-    upperArm: { type: Float },
+    length: { type: Float },
     armhole: { type: Float },
-    length: { type: Float }
+    upperArm: { type: Float },
+    wrist: { type: Float }
 });
 
 

@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const mongodb = require('mongodb');
 
 const { Project } = require('./models');
 
@@ -17,8 +18,8 @@ router.get('/', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
-    if (ObjectId.isValid(req.params.id)) {
-        Project
+    if (mongodb.ObjectID.isValid(req.params.id)) {
+        return Project
             .findById(req.params.id)
             .then(project => res.status(201).json(project))
             .catch(err =>
@@ -28,6 +29,7 @@ router.get('/:id', (req, res) => {
         let userId = req.user.id;
         return Project
             .find({ user: userId })
+            .populate('pattern')
             .then(projects => res.json(projects))
             .catch(err =>
                 res.status(500).json({ message: 'Internal server error' })
@@ -37,7 +39,7 @@ router.get('/:id', (req, res) => {
 
 router.post('/', (req, res) => {
 
-    const requiredFields = ['name', 'style'];
+    const requiredFields = ['name'];
     const missingField = requiredFields.find(field => !(field in req.body));
 
     if (missingField) {
@@ -63,7 +65,8 @@ router.post('/', (req, res) => {
         hips,
         upperArm,
         armhole,
-        length
+        length,
+        wrist
     } = req.body;
 
     const newProject = {
@@ -82,7 +85,8 @@ router.post('/', (req, res) => {
         hips,
         upperArm,
         armhole,
-        length
+        length,
+        wrist
     };
 
     Project
@@ -102,7 +106,7 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
 
     const updated = {};
-    const updateFields = ['name', 'style', 'size', 'ease', 'needles', 'gaugeRow', 'gaugeStitches', 'notes', 'chest', 'waist', 'hips', 'upperArm', 'armhole', 'length'];
+    const updateFields = ['name', 'style', 'size', 'ease', 'needles', 'gaugeRow', 'gaugeStitches', 'notes', 'chest', 'waist', 'hips', 'upperArm', 'armhole', 'length', 'wrist'];
     updateFields.forEach(field => {
         if (req.body[field]) {
             updated[field] = req.body[field];
