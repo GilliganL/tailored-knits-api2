@@ -38,7 +38,7 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-
+ 
     const requiredFields = ['name'];
     const missingField = requiredFields.find(field => !(field in req.body));
 
