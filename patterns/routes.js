@@ -16,6 +16,7 @@ router.get('/', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
+    
     Pattern
         .findById(req.params.id)
         .then(pattern => res.status(201).json(pattern))

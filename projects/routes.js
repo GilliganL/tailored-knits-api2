@@ -21,7 +21,9 @@ router.get('/:id', (req, res) => {
     if (mongodb.ObjectID.isValid(req.params.id)) {
         return Project
             .findById(req.params.id)
-            .then(project => res.status(201).json(project))
+            .populate('pattern')
+            .populate('user')
+            .then(project => res.status(200).json(project))
             .catch(err =>
                 res.status(500).json({ message: 'Internal server error' })
             )
@@ -30,6 +32,7 @@ router.get('/:id', (req, res) => {
         return Project
             .find({ user: userId })
             .populate('pattern')
+            .populate('user')
             .then(projects => res.json(projects))
             .catch(err =>
                 res.status(500).json({ message: 'Internal server error' })
