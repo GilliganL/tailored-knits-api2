@@ -20,6 +20,8 @@ const projectSchema = mongoose.Schema({
     hips: { type: Float },
     upperArm: { type: Float },
     armhole: { type: Float },
+    yokeDepth: { type: Float },
+    raglanDepth: { type: Float },
     length: { type: Float },
     wrist: { type: Float }
 });

@@ -27,7 +27,7 @@ router.get('/:id', (req, res) => {
 
 router.post('/', (req, res) => {
 
-    const requiredFields = ['name'];
+    const requiredFields = ['name', 'style'];
     const missingField = requiredFields.find(field => !(field in req.body));
 
     if (missingField) {
@@ -42,7 +42,8 @@ router.post('/', (req, res) => {
     Pattern
         .create({
             _id: new mongoose.Types.ObjectId(),
-            name: req.body.name
+            name: req.body.name,
+            style: req.body.style
         })
         .then(pattern => res.status(201).json(pattern))
         .catch(err => {

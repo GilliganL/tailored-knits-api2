@@ -9,13 +9,15 @@ const patternSchema = mongoose.Schema({
     ease: Number,
     gaugeRow: Number,
     gaugeStitches: Number,
-    style: { type: String, enum: ['raglan', 'set in'] },
+    style: { type: String, enum: ['Raglan', 'Set In', 'Yoke'] },
     chest: { type: Float },
     waist: { type: Float },
     hips: { type: Float },
     length: { type: Float },
     armhole: { type: Float },
     upperArm: { type: Float },
+    yokeDepth: { type: Float },
+    raglanDepth: { type: Float },
     wrist: { type: Float }
 });
 

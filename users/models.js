@@ -17,7 +17,8 @@ const userSchema = mongoose.Schema({
     hips: { type: Float },
     upperArm: { type: Float },
     armhole: { type: Float },
-    length: { type: Float }
+    length: { type: Float },
+    wrist: { type: Float }
 });
 
 const passwordSchema = new passwordValidator();
