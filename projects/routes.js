@@ -27,21 +27,20 @@ router.get('/:id', (req, res) => {
             .catch(err =>
                 res.status(500).json({ message: 'Internal server error' })
             )
-    } else {
-        let userId = req.user.id;
-        return Project
-            .find({ user: userId })
-            .populate('pattern')
-            .populate('user')
-            .then(projects => res.json(projects))
-            .catch(err =>
-                res.status(500).json({ message: 'Internal server error' })
-            )
     }
+    let userId = req.user.id;
+    return Project
+        .find({ user: userId })
+        .populate('pattern')
+        .populate('user')
+        .then(projects => res.status(201).json(projects))
+        .catch(err =>
+            res.status(500).json({ message: 'Internal server error' })
+        )
 });
 
 router.post('/', (req, res) => {
- 
+
     const requiredFields = ['name'];
     const missingField = requiredFields.find(field => !(field in req.body));
 

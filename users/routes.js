@@ -125,13 +125,13 @@ router.get('/:id', (req, res) => {
 router.put('/:id', (req, res) => {
    
     const updated = {};
-    const updateFields = ['firstName', 'lastName', 'email', 'password'];
+    const updateFields = ['firstName', 'lastName', 'email', 'password', 'chest', 'waist', 'hips', 'upperArm', 'armhole', 'length', 'wrist'];
     updateFields.forEach(field => {
         if (req.body[field]) {
             updated[field] = req.body[field];
         }
     })
-
+    console.log(updated)
     const nameFields = ['firstName', 'lastName'];
     const invalidName = nameFields.find(
         field => field in updated && !(validator.isAlpha(updated[field]))
@@ -156,19 +156,19 @@ router.put('/:id', (req, res) => {
     }
 
     //how do you update a password?
-    if (updated.password && !(passwordSchema.validate(updated.password))) {
-        const failed = passwordSchema.validate(req.body.password, { list: true });
-        return res.status(422).json({
-            code: 422,
-            reason: 'ValidationError',
-            message: failed,
-            location: 'Password'
-        });
-    } else if (updated.password && passwordSchema.validate(updated.password)) {
-        User
-        .hashPassword(updated.password)
-        .then(hash => updated.password = hash)
-    }
+    // if (updated.password && !(passwordSchema.validate(updated.password))) {
+    //     const failed = passwordSchema.validate(req.body.password, { list: true });
+    //     return res.status(422).json({
+    //         code: 422,
+    //         reason: 'ValidationError',
+    //         message: failed,
+    //         location: 'Password'
+    //     });
+    // } else if (updated.password && passwordSchema.validate(updated.password)) {
+    //     User
+    //     .hashPassword(updated.password)
+    //     .then(hash => updated.password = hash)
+    // }
    
     User 
     .findOneAndUpdate({_id: req.params.id}, { $set: updated }, { new: true })

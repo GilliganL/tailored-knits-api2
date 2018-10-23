@@ -31,25 +31,32 @@ passwordSchema
     .has().digits()
     .has().not().spaces()
 
-userSchema.virtual('fullName').get(function() {
+userSchema.virtual('fullName').get(function () {
     return `${this.firstName} ${this.lastName}`.trim();
 });
 
-userSchema.methods.serialize = function() {
+userSchema.methods.serialize = function () {
     return {
         id: this._id,
         firstName: this.firstName,
         lastName: this.lastName,
         email: this.email,
-        username: this.username
+        username: this.username,
+        chest: this.chest,
+        waist: this.waist,
+        hips: this.hips,
+        upperArm: this.upperArm,
+        armhole: this.armhole,
+        length: this.length,
+        wrist: this.wrist
     };
 };
 
-userSchema.methods.validatePassword = function(password) {
+userSchema.methods.validatePassword = function (password) {
     return bcrypt.compare(password, this.password);
 };
 
-userSchema.statics.hashPassword = function(password) {
+userSchema.statics.hashPassword = function (password) {
     return bcrypt.hash(password, 10);
 };
 
