@@ -97,7 +97,7 @@ router.post('/', (req, res) => {
             _id: new mongoose.Types.ObjectId(),
             ...newProject
         })
-        .then(project => res.status(201).json(project))
+        .then(project => res.status(200).json(project))
         .catch(err => {
             if (err.reason === 'ValidationError') {
                 return res.status(err.code).json(err);
@@ -119,7 +119,7 @@ router.put('/:id', (req, res) => {
     Project
         .findOneAndUpdate({ _id: req.params.id }, { $set: updated }, { new: true })
         .then(updatedProject => {
-            res.status(201).json(updatedProject)
+            res.status(200).json(updatedProject)
         })
         .catch(err => {
             if (err.reason === 'ValidationError') {

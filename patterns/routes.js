@@ -19,7 +19,7 @@ router.get('/:id', (req, res) => {
     
     Pattern
         .findById(req.params.id)
-        .then(pattern => res.status(201).json(pattern))
+        .then(pattern => res.status(200).json(pattern))
         .catch(err =>
             res.status(500).json({ message: 'Internal server error' })
         )
@@ -45,7 +45,7 @@ router.post('/', (req, res) => {
             name: req.body.name,
             style: req.body.style
         })
-        .then(pattern => res.status(201).json(pattern))
+        .then(pattern => res.status(200).json(pattern))
         .catch(err => {
             if (err.reason === 'ValidationError') {
                 return res.status(err.code).json(err);
@@ -67,7 +67,7 @@ router.put('/:id', (req, res) => {
     Pattern
         .findOneAndUpdate({ _id: req.params.id }, { $set: updated }, { new: true })
         .then(updatedPattern => {
-            res.status(201).json(updatedPattern)
+            res.status(200).json(updatedPattern)
         })
         .catch(err => {
             if (err.reason === 'ValidationError') {

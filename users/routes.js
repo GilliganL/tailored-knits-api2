@@ -94,7 +94,7 @@ router.post('/', (req, res) => {
                     password: hash
                 })
         })
-        .then(user => res.status(201).json(user.serialize()))
+        .then(user => res.status(200).json(user.serialize()))
         .catch(err => {
             if (err.reason === 'ValidationError') {
                 return res.status(err.code).json(err);
@@ -116,7 +116,7 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
     User
         .findById(req.params.id)
-        .then(user => res.status(201).json(user.serialize()))
+        .then(user => res.status(200).json(user.serialize()))
         .catch(err => 
             res.status(500).json({message: 'Internal server error'})
         )
