@@ -55,15 +55,15 @@ router.post('/', (req, res) => {
 });
 
 router.put('/:id', (req, res) => {
-
+    console.log(req.body)
     const updated = {};
     const updateFields = ['name', 'ease', 'gaugeRow', 'gaugeStitches', 'style', 'chest', 'waist', 'hips', 'upperArm', 'armhole', 'length', 'wrist', 'needles'];
     updateFields.forEach(field => {
-        if (req.body[field]) {
+        if (req.body[field] !== null) {
             updated[field] = req.body[field];
         }
     });
-
+    console.log(updated)
     Pattern
         .findOneAndUpdate({ _id: req.params.id }, { $set: updated }, { new: true })
         .then(updatedPattern => {
