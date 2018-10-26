@@ -55,7 +55,7 @@ router.post('/', (req, res) => {
 });
 
 router.put('/:id', (req, res) => {
-    console.log(req.body)
+    
     const updated = {};
     const updateFields = ['name', 'ease', 'gaugeRow', 'gaugeStitches', 'style', 'chest', 'waist', 'hips', 'upperArm', 'armhole', 'length', 'wrist', 'needles'];
     updateFields.forEach(field => {
