@@ -4,8 +4,13 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const mongodb = require('mongodb');
+const aws = require('aws-sdk');
 
 const { Project } = require('./models');
+
+const { S3_BUCKET } = require('../config');
+
+aws.config.region = 'us-west-1';
 
 router.get('/', (req, res) => {
     return Project
@@ -55,6 +60,7 @@ router.post('/', (req, res) => {
 
     const {
         pattern,
+        images,
         name,
         size,
         ease,
@@ -67,13 +73,16 @@ router.post('/', (req, res) => {
         hips,
         upperArm,
         armhole,
+        yokeDepth,
+        raglanDepth,
         length,
         wrist
     } = req.body;
-
+console.log(req.user)
     const newProject = {
-        user: '5bbff2b462143035e48912f2',
+        user: req.user.id,
         created: Date.now(),
+        images,
         pattern,
         name,
         size,
@@ -87,6 +96,8 @@ router.post('/', (req, res) => {
         hips,
         upperArm,
         armhole,
+        yokeDepth,
+        raglanDepth,
         length,
         wrist
     };
@@ -108,7 +119,7 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
 
     const updated = {};
-    const updateFields = ['name', 'style', 'size', 'ease', 'needles', 'gaugeRow', 'gaugeStitches', 'notes', 'chest', 'waist', 'hips', 'upperArm', 'armhole', 'yokeDepth', 'raglanDepth', 'length', 'wrist'];
+    const updateFields = ['name', 'images','style', 'size', 'ease', 'needles', 'gaugeRow', 'gaugeStitches', 'notes', 'chest', 'waist', 'hips', 'upperArm', 'armhole', 'yokeDepth', 'raglanDepth', 'length', 'wrist'];
     updateFields.forEach(field => {
         if (req.body[field]) {
             updated[field] = req.body[field];
@@ -138,6 +149,35 @@ router.delete('/:id', (req, res) => {
         .catch(err => {
             res.status(500).json({ error: 'Internal server error' })
         });
+});
+
+router.get('/sign-s3', (req, res) => {
+    const s3 = new aws.S3({
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    });
+    const fileName = req.query['file-name'];
+    const fileType = req.query['file-type'];
+    const s3Params = {
+        Bucket: S3_BUCKET,
+        Key: `project-images/${fileName}`,
+        Expires: 600,
+        ACL: 'public-read',
+        ContentType: fileType
+    };
+
+    s3.getSignedUrl('putObject', s3Params, (err, data) => {
+        if (err) {
+            console.log(err);
+            return res.end();
+        }
+        const returnData = {
+            signedRequest: data,
+            url: `https://${S3_BUCKET}.s3.amazonaws.com/project-images/${fileName}`
+        };
+        res.write(JSON.stringify(returnData));
+        res.end();
+    });
 });
 
 module.exports = { router };

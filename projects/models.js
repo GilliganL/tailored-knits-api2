@@ -7,6 +7,7 @@ mongoose.Promise = global.Promise;
 const projectSchema = mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     pattern: {type: mongoose.Schema.Types.ObjectId, ref: 'Pattern'},
+    images: [String],
     name: { type: String, required: true },
     created: { type: Date, default: Date.now },
     size: String,
