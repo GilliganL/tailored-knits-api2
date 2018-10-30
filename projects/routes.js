@@ -12,6 +12,35 @@ const { S3_BUCKET } = require('../config');
 
 aws.config.region = 'us-west-1';
 
+router.get('/sign-s3', (req, res) => {
+    const s3 = new aws.S3({
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    });
+    const fileName = req.query['file-name'];
+    const fileType = req.query['file-type'];
+    const s3Params = {
+        Bucket: S3_BUCKET,
+        Key: `project-images/${fileName}`,
+        Expires: 600,
+        ACL: 'public-read',
+        ContentType: fileType
+    };
+
+    s3.getSignedUrl('putObject', s3Params, (err, data) => {
+        if (err) {
+            console.log(err);
+            return res.end();
+        }
+        const returnData = {
+            signedRequest: data,
+            url: `https://${S3_BUCKET}.s3.amazonaws.com/project-images/${fileName}`
+        };
+        res.write(JSON.stringify(returnData));
+        res.end();
+    });
+});
+
 router.get('/', (req, res) => {
     return Project
         .find()
@@ -149,35 +178,6 @@ router.delete('/:id', (req, res) => {
         .catch(err => {
             res.status(500).json({ error: 'Internal server error' })
         });
-});
-
-router.get('/sign-s3', (req, res) => {
-    const s3 = new aws.S3({
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-    });
-    const fileName = req.query['file-name'];
-    const fileType = req.query['file-type'];
-    const s3Params = {
-        Bucket: S3_BUCKET,
-        Key: `project-images/${fileName}`,
-        Expires: 600,
-        ACL: 'public-read',
-        ContentType: fileType
-    };
-
-    s3.getSignedUrl('putObject', s3Params, (err, data) => {
-        if (err) {
-            console.log(err);
-            return res.end();
-        }
-        const returnData = {
-            signedRequest: data,
-            url: `https://${S3_BUCKET}.s3.amazonaws.com/project-images/${fileName}`
-        };
-        res.write(JSON.stringify(returnData));
-        res.end();
-    });
 });
 
 module.exports = { router };
