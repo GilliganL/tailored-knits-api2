@@ -17,8 +17,8 @@ router.get('/sign-s3', (req, res) => {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
     });
-    const fileName = req.query['file-name'];
-    const fileType = req.query['file-type'];
+    const fileName = 'testName';
+    const fileType = 'image/jpeg';
     const s3Params = {
         Bucket: S3_BUCKET,
         Key: `project-images/${fileName}`,
