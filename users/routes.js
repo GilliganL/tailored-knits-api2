@@ -2,8 +2,6 @@
 
 const express = require('express');
 const router = express.Router();
-
-//Do I need to validate passwords here if I'm doing it on the front end?
 const validator = require('validator');
 const passport = require('passport');
 
@@ -14,7 +12,6 @@ const jwtAuth = passport.authenticate('jwt', { session: false });
 router.post('/', (req, res) => {
     const requiredFields = ['firstName', 'lastName', 'username', 'password', 'email'];
     const missingField = requiredFields.find(field => !(field in req.body));
-
     if(missingField) {
         return res.status(422).json({
             code: 422,
@@ -26,9 +23,8 @@ router.post('/', (req, res) => {
 
     const nameFields = ['firstName', 'lastName'];
     const invalidName = nameFields.find(
-        field => field in req.body && !(validator.isAlpha(field))
+        field => field in req.body && !(validator.isAlpha(req.body[field]))
     );
-
     if(invalidName) {
         return res.status(422).json({
             code: 422,
@@ -42,7 +38,6 @@ router.post('/', (req, res) => {
     const nonTrimmedFields = trimmedFields.find(
         field => req.body[field].trim() !== req.body[field]
     );
-
     if(nonTrimmedFields) {
         return res.status(422).json({
             code: 422,
@@ -103,7 +98,7 @@ router.post('/', (req, res) => {
         });
 });
 
-//router.use(jwtAuth);
+router.use(jwtAuth);
 
 router.get('/', (req, res) => {
     return User.find()
@@ -131,12 +126,11 @@ router.put('/:id', (req, res) => {
             updated[field] = req.body[field];
         }
     })
-    console.log(updated)
+
     const nameFields = ['firstName', 'lastName'];
     const invalidName = nameFields.find(
         field => field in updated && !(validator.isAlpha(updated[field]))
     );
-
     if(invalidName) {
         return res.status(422).json({
             code: 422,
@@ -182,7 +176,7 @@ router.put('/:id', (req, res) => {
 });
 
 router.delete('/:id', (req, res) => {
-    if (req.params.id !== req.body.id) {
+    if (req.params.id !== req.user.id) {
         return res.status(422).json({
             code: 422,
             reason: 'ValidationError',
@@ -192,7 +186,7 @@ router.delete('/:id', (req, res) => {
     }
 
     User
-        .findByIdAndRemove(req.body.id)
+        .findByIdAndRemove(req.user.id)
         .then(() => {
             res.status(200).json({ message: 'success' })
         })
