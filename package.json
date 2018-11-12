@@ -5,19 +5,14 @@
   "main": "index.js",
   "dependencies": {
     "aws-sdk": "^2.344.0",
-    "chai": "^4.2.0",
-    "chai-http": "^4.2.0",
     "express": "^4.16.3",
     "faker": "^4.1.0",
-    "mocha": "^5.2.0",
     "mongodb": "^3.1.8",
     "mongoose-float": "^1.0.2",
-    "nodemon": "^1.18.4"
-  },
-  "devDependencies": {
+    "nodemon": "^1.18.4",
+    "dotenv": "^6.1.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.4",
-    "dotenv": "^6.1.0",
     "jsonwebtoken": "^8.3.0",
     "mongoose": "^5.3.10",
     "morgan": "^1.9.1",
@@ -26,6 +21,11 @@
     "passport-local": "^1.0.0",
     "password-validator": "^4.1.1",
     "validator": "^10.8.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.2.0",
+    "mocha": "^5.2.0"
   },
   "scripts": {
     "test": "mocha --exit",
