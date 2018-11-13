@@ -120,7 +120,7 @@ router.get('/:id', (req, res) => {
 router.put('/:id', (req, res) => {
    
     const updated = {};
-    const updateFields = ['firstName', 'lastName', 'email', 'password', 'chest', 'waist', 'hips', 'upperArm', 'armhole', 'length', 'wrist'];
+    const updateFields = ['firstName', 'lastName', 'email', 'password', 'passwordCurrent', 'chest', 'waist', 'hips', 'upperArm', 'armhole', 'length', 'wrist'];
     updateFields.forEach(field => {
         if (req.body[field]) {
             updated[field] = req.body[field];
@@ -149,21 +149,42 @@ router.put('/:id', (req, res) => {
         });
     }
 
-    //how do you update a password?
-    // if (updated.password && !(passwordSchema.validate(updated.password))) {
-    //     const failed = passwordSchema.validate(req.body.password, { list: true });
-    //     return res.status(422).json({
-    //         code: 422,
-    //         reason: 'ValidationError',
-    //         message: failed,
-    //         location: 'Password'
-    //     });
-    // } else if (updated.password && passwordSchema.validate(updated.password)) {
-    //     User
-    //     .hashPassword(updated.password)
-    //     .then(hash => updated.password = hash)
-    // }
-   
+    if (updated.password && !(passwordSchema.validate(updated.password))) {
+        const failed = passwordSchema.validate(req.body.password, { list: true });
+        return res.status(422).json({
+            code: 422,
+            reason: 'ValidationError',
+            message: failed,
+            location: 'Password'
+        });
+    } else if (updated.password && passwordSchema.validate(updated.password)) {
+        User.findById(req.user.id)
+        .then(user => user.validatePassword(updated.passwordCurrent))
+        .then(isValid => {
+            return isValid ?
+                User.hashPassword(updated.password) :
+                Promise.reject({
+                    code: 422,
+                    reason: 'ValidationError',
+                    message: 'Current password is incorrect',
+                    location: 'Password' })
+        })
+        .then(hash => { 
+            updated.password = hash
+            updateUser(req, res, updated)
+        })
+        .catch(err => {
+            if (err.reason === 'ValidationError') {
+                return res.status(err.code).json(err);
+            }
+            res.status(500).json({ error: 'Internal server error'})
+        });
+    } else {
+        updateUser(req, res, updated)
+    }
+});
+
+function updateUser(req, res, updated) {
     User 
     .findOneAndUpdate({_id: req.params.id}, { $set: updated }, { new: true })
     .then(user => res.status(200).json(user.serialize()))
@@ -173,7 +194,7 @@ router.put('/:id', (req, res) => {
         }
         res.status(500).json({ error: 'Internal server error'})
     });
-});
+}
 
 router.delete('/:id', (req, res) => {
     if (req.params.id !== req.user.id) {

@@ -108,7 +108,7 @@ router.post('/', (req, res) => {
         length,
         wrist
     } = req.body;
-console.log(req.user)
+y
     const newProject = {
         user: req.user.id,
         created: Date.now(),
