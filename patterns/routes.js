@@ -34,7 +34,7 @@ router.post('/', (req, res) => {
         return res.status(422).json({
             code: 422,
             reason: 'ValidationError',
-            message: 'Missing field',
+            message: 'Pattern name and style are required.',
             location: `Pattern ${missingField}`
         });
     }

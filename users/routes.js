@@ -16,7 +16,7 @@ router.post('/', (req, res) => {
         return res.status(422).json({
             code: 422,
             reason: 'ValidationError',
-            message: 'Missing field',
+            message: 'The form is missing a field.',
             location: missingField
         });
     }
@@ -29,7 +29,7 @@ router.post('/', (req, res) => {
         return res.status(422).json({
             code: 422,
             reason: 'ValidationError',
-            message: 'Incorrect field type: only letters allowed',
+            message: 'First and last name may only contain letters.',
             location: invalidName
         });
     }
@@ -42,7 +42,7 @@ router.post('/', (req, res) => {
         return res.status(422).json({
             code: 422,
             reason: 'ValidationError',
-            message: 'Cannot start or end with a space',
+            message: 'Password and username cannot start or end with a space.',
             location: nonTrimmedFields
         });
     }
@@ -51,7 +51,7 @@ router.post('/', (req, res) => {
         return res.status(422).json({
             code: 422,
             reason: 'ValidationError',
-            message: 'Not a valid email address',
+            message: 'Please enter a valid email address',
             location: 'Email'
         });
     }
@@ -61,7 +61,7 @@ router.post('/', (req, res) => {
         return res.status(422).json({
             code: 422,
             reason: 'ValidationError',
-            message: failed,
+            message: 'Password must be between 8 and 72 characters with at least 1 uppercase and lowercase letters and 1 number.',
             location: 'Password'
         });
     }
@@ -73,7 +73,7 @@ router.post('/', (req, res) => {
                 return Promise.reject({
                     code: 422,
                     reason: 'ValidationError',
-                    message: 'Username already taken',
+                    message: 'Username is not available.',
                     location: 'username'
                 });
             }
@@ -135,7 +135,7 @@ router.put('/:id', (req, res) => {
         return res.status(422).json({
             code: 422,
             reason: 'ValidationError',
-            message: 'Incorrect field type: only letters allowed',
+            message: 'First and last name may only contain letters.',
             location: invalidName
         });
     }
@@ -144,8 +144,17 @@ router.put('/:id', (req, res) => {
         return res.status(422).json({
             code: 422,
             reason: 'ValidationError',
-            message: 'Not a valid email address',
+            message: 'Please enter a valid email address.',
             location: 'email'
+        });
+    }
+
+    if(updated.password !== updated.password.trim()) {
+        return res.status(422).json({
+            code: 422,
+            reason: 'ValidationError',
+            message: 'Password cannot start or end with a space.',
+            location: nonTrimmedFields
         });
     }
 
@@ -154,7 +163,7 @@ router.put('/:id', (req, res) => {
         return res.status(422).json({
             code: 422,
             reason: 'ValidationError',
-            message: failed,
+            message: 'Password must be between 8 and 72 characters with at least 1 uppercase and lowercase letters and 1 number.',
             location: 'Password'
         });
     } else if (updated.password && passwordSchema.validate(updated.password)) {
@@ -166,7 +175,7 @@ router.put('/:id', (req, res) => {
                 Promise.reject({
                     code: 422,
                     reason: 'ValidationError',
-                    message: 'Current password is incorrect',
+                    message: 'Current password is incorrect.',
                     location: 'Password' })
         })
         .then(hash => { 
