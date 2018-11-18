@@ -216,33 +216,6 @@ describe('User API endpoints', function () {
     });
 
     describe('POST API endpoint', function () {
-
-        // describe('POST', function () {
-        //     it('Should reject users with a missing field', function () {
-        //         return chai.request(app)
-        //             .post('/api/users')
-        //             .send({
-        //                 firstName,
-        //                 lastName,
-        //                 username,
-        //                 password
-        //             })
-        //             .then((res) => {
-        //                 //should not execute
-        //                 expect.fail(null, null, 'Request should not succeed')
-        //             }
-        //             )
-        //             .catch(err => {
-        //                 if (err instanceof chai.AssertionError) {
-        //                     throw err;
-        //                 }
-        //                 const res = err.response;
-        //                 expect(res).to.have.status(400);
-        //                 expect(res.body.error).to.equal('Missing \'email\'')
-        //             });
-        //     });
-        // });
-
         it('Should add a new user', function () {
             const newUser = generateUserData();
             return chai.request(app)
@@ -279,7 +252,7 @@ describe('User API endpoints', function () {
                     expect(res).to.have.status(422);
                     expect(res).to.be.json;
                     expect(res.body).to.be.a('object');
-                    expect(res.body.message).to.equal('Missing field');
+                    expect(res.body.message).to.equal('The form is missing a field.');
                     expect(res.body.location).to.equal('firstName');
                     expect(res.body.reason).to.equal('ValidationError');
                 });
@@ -296,7 +269,7 @@ describe('User API endpoints', function () {
                     expect(res).to.have.status(422);
                     expect(res).to.be.json;
                     expect(res.body).to.be.a('object');
-                    expect(res.body.message).to.equal('Incorrect field type: only letters allowed');
+                    expect(res.body.message).to.equal('First and last name may only contain letters.');
                     expect(res.body.location).to.equal('firstName');
                     expect(res.body.reason).to.equal('ValidationError');
                 });
@@ -312,7 +285,7 @@ describe('User API endpoints', function () {
                     expect(res).to.have.status(422);
                     expect(res).to.be.json;
                     expect(res.body).to.be.a('object');
-                    expect(res.body.message).to.equal('Cannot start or end with a space');
+                    expect(res.body.message).to.equal('Password and username cannot start or end with a space.');
                     expect(res.body.location).to.equal('username');
                     expect(res.body.reason).to.equal('ValidationError');
                 });
@@ -328,7 +301,7 @@ describe('User API endpoints', function () {
                     expect(res).to.have.status(422);
                     expect(res).to.be.json;
                     expect(res.body).to.be.a('object');
-                    expect(res.body.message).to.equal('Not a valid email address');
+                    expect(res.body.message).to.equal('Please enter a valid email address.');
                     expect(res.body.location).to.equal('Email');
                     expect(res.body.reason).to.equal('ValidationError');
                 });
@@ -344,10 +317,7 @@ describe('User API endpoints', function () {
                     expect(res).to.have.status(422);
                     expect(res).to.be.json;
                     expect(res.body).to.be.a('object');
-                    expect(res.body.message).to.be.a('array');
-                    expect(res.body.message[0]).to.equal('min');
-                    expect(res.body.message[1]).to.equal('uppercase');
-                    expect(res.body.location).to.equal('Password');
+                    expect(res.body.message).to.equal('Password must be between 8 and 72 characters with at least 1 uppercase and lowercase letters and 1 number.');
                     expect(res.body.reason).to.equal('ValidationError');
                 });
         });
@@ -362,7 +332,7 @@ describe('User API endpoints', function () {
                     expect(res).to.have.status(422);
                     expect(res).to.be.json;
                     expect(res.body).to.be.a('object');
-                    expect(res.body.message).to.equal('Username already taken');
+                    expect(res.body.message).to.equal('Username is not available.');
                     expect(res.body.location).to.equal('username');
                     expect(res.body.reason).to.equal('ValidationError');
                 });
@@ -418,7 +388,7 @@ describe('User API endpoints', function () {
                     expect(res).to.have.status(422);
                     expect(res).to.be.json;
                     expect(res.body).to.be.a('object');
-                    expect(res.body.message).to.equal('Incorrect field type: only letters allowed');
+                    expect(res.body.message).to.equal('First and last name may only contain letters.');
                     expect(res.body.location).to.equal('firstName');
                     expect(res.body.reason).to.equal('ValidationError');
                 });
@@ -436,7 +406,7 @@ describe('User API endpoints', function () {
                     expect(res).to.have.status(422);
                     expect(res).to.be.json;
                     expect(res.body).to.be.a('object');
-                    expect(res.body.message).to.equal('Not a valid email address');
+                    expect(res.body.message).to.equal('Please enter a valid email address.');
                     expect(res.body.location).to.equal('email');
                     expect(res.body.reason).to.equal('ValidationError');
                 });

@@ -51,7 +51,7 @@ router.post('/', (req, res) => {
         return res.status(422).json({
             code: 422,
             reason: 'ValidationError',
-            message: 'Please enter a valid email address',
+            message: 'Please enter a valid email address.',
             location: 'Email'
         });
     }
@@ -118,7 +118,6 @@ router.get('/:id', (req, res) => {
 });
 
 router.put('/:id', (req, res) => {
-   
     const updated = {};
     const updateFields = ['firstName', 'lastName', 'email', 'password', 'passwordCurrent', 'chest', 'waist', 'hips', 'upperArm', 'armhole', 'length', 'wrist'];
     updateFields.forEach(field => {
@@ -149,7 +148,7 @@ router.put('/:id', (req, res) => {
         });
     }
 
-    if(updated.password !== updated.password.trim()) {
+    if(updated.password && (updated.password !== updated.password.trim())) {
         return res.status(422).json({
             code: 422,
             reason: 'ValidationError',
