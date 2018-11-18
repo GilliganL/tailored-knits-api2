@@ -30,11 +30,7 @@ passport.use(jwtStrategy);
 
 const jwtAuth = passport.authenticate('jwt', { session: false });
 
-app.use(
-    cors({
-        origin: CLIENT_ORIGIN
-    })
-);
+app.use(cors());
 
 // app.use(function(req, res, next) {
 //     res.header('Access-Control-Allow-Origin', '*');
